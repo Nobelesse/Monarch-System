@@ -1,0 +1,15 @@
+.venv/
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+.env
+.env.*
+!.env.example
+backend/config.local.json
+*.sqlite3
+media/
+backups/
+*.log
+.pytest_cache/
+.DS_Store
