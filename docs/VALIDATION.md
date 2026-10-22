@@ -1,27 +1,22 @@
-# Validation — Phase 1
+# Phase 2 validation record
 
-Completed in the author environment:
-- Python 3.12.14 Linux: six Django tests passed using an isolated in-memory SQLite database.
-- Tests cover health success, sanitized database failure, absent admin route, read-only endpoints,
-  explicit capability flags and password hashing.
-- Django system check passed; no missing migrations (`makemigrations --check --dry-run`).
-- pip dependency consistency check passed.
-- All pinned Python requirements resolved as binary/universal wheels for CPython 3.12 Windows x64,
-  including psycopg-binary. No C compiler is required for those wheels.
-- Frontend TypeScript check and Vite production build passed under Node 22.23.2 (Linux).
-- Clean npm lockfile install passed in the runner (npm 11.9.0); lock format is npm v3.
-- Desktop browser visual inspection passed: dashboard, navigation and paths render correctly.
-- Browser interaction checks passed: path selection, save, persistence after refresh, minimum
-  one selected module, and explicit backend-unavailable diagnostics.
+The Phase 2 ZIP was created from the user-uploaded Phase 1 source archive on 20 October 2026.
 
-Not verified here:
-- Execution of PowerShell scripts on Windows; no Windows runtime is available in this runner.
-- Live PostgreSQL 17 migrations/health against the user's database. The user's earlier psql
-  check established connectivity; installing this package must verify its own migration run.
-- Python 3.12.10 runtime itself (same minor version; author runtime is 3.12.14).
-- Physical-phone layout, touch interaction or mobile install. Responsive styles are included;
-  actual device acceptance and PWA/public networking are later milestones.
-- Public exposure, load capacity, account security or Google OAuth (not implemented).
+**Checks performed during packaging:**
+- `python -m compileall` for modified backend Python files: passed (syntax only).
+- ZIP structural checks: see packaging notes / archive validation.
 
-Run README's acceptance checklist locally before starting Phase 2. Report exact error text
-without credentials. Never interpret a successful SQLite test as a PostgreSQL integration test.
+**Unable to execute here:**
+- Django unit/integration tests. Django and Google auth dependencies were not installed in the packaging environment; outbound package repository resolution was unavailable.
+- Frontend TypeScript and Vite production build. `npm ci` could not complete from the locked dependency registry in this offline environment. No passing frontend build is claimed.
+- Windows PowerShell scripts and migrations against the owner's live PostgreSQL database.
+- Real Google OAuth sign-in: needs the owner's configured OAuth client and real browser environment.
+
+Run `scripts/test.ps1` locally after `scripts/setup.ps1`, report actual results, and fix regressions before treating Phase 2 as accepted. Maintain the original Phase 1 test evidence as historical evidence, not new verification.
+
+## v0.2.1 — 22 October 2026
+The owner reported all **26/26 backend tests passed** and a successful Vite production build for v0.2.0, but registration in Chrome displayed `Unexpected token '<', '<!DOCTYPE ... is not valid JSON` and did not create an account.
+
+Root cause identified in source: Vite proxies browser POST requests between different port origins; Django `CSRF_TRUSTED_ORIGINS` was not configured for the Vite page origin. The previous Django tests did not supply the browser `Origin` header.
+
+This hotfix adds three CSRF regression/security tests and validates/handles non-JSON responses in the frontend. These new tests **still require execution on the owner's Windows environment**; their passing status is not yet reported. The v0.2.0 26-test pass does not establish a v0.2.1 29-test pass.

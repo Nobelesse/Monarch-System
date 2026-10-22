@@ -1,6 +1,7 @@
 from django.db import connection, DatabaseError
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
+from django.conf import settings
 @require_GET
 def health(request):
     try:
@@ -8,10 +9,10 @@ def health(request):
             cursor.execute('SELECT 1')
             cursor.fetchone()
     except DatabaseError:
-        return JsonResponse({'status': 'degraded', 'api': 'online', 'database': 'unavailable', 'version': '0.1.0'}, status=503)
-    response = JsonResponse({'status': 'ok', 'api': 'online', 'database': 'connected', 'version': '0.1.0'})
+        return JsonResponse({'status': 'degraded', 'api': 'online', 'database': 'unavailable', 'version': '0.2.1'}, status=503)
+    response = JsonResponse({'status': 'ok', 'api': 'online', 'database': 'connected', 'version': '0.2.1'})
     response['Cache-Control'] = 'no-store'
     return response
 @require_GET
 def system_info(request):
-    return JsonResponse({'name': 'Monarch System', 'version': '0.1.0', 'phase': 1, 'modules': ['workout', 'study', 'learning'], 'authentication_available': False, 'public_access_ready': False})
+    return JsonResponse({'name': 'Monarch System', 'version': '0.2.1', 'phase': 2, 'modules': ['workout', 'study', 'learning'], 'authentication_available': True, 'public_access_ready': False, 'google_login_configured': bool(settings.GOOGLE_CLIENT_ID), 'google_client_id': settings.GOOGLE_CLIENT_ID})

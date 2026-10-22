@@ -20,3 +20,12 @@ https://docs.djangoproject.com/en/5.2/releases/5.2/
 https://v7.vite.dev/guide/migration
 
 Compatibility is not a claim of identical OS behavior. Windows first-run remains a required acceptance step.
+
+## Phase 2 dependencies
+- Django and djangorestframework stay pinned to the validated Phase 1 versions.
+- Added `google-auth==2.41.1` for verified Google ID tokens and `requests==2.32.5` for Google certificate transport.
+- React/Vite versions remain unchanged; frontend application release version advances to `0.2.0`.
+- Check `scripts/check_versions.py` for the Python 3.12 / Node 22 policy, unchanged from Phase 1.
+
+## v0.2.1 (hotfix)
+- No dependency version changes. Fixes browser-origin CSRF handling and frontend API error messages.

@@ -54,3 +54,12 @@ Early exercise content requires review before daily-use training recommendations
 ## Open decisions for Phase 3
 Age audience, fitness onboarding details, language options, initial user group, visual feedback,
 and preferred optional game penalties. Do not infer the owner's health or body measurements.
+
+## Phase 2 delta (v0.2.0)
+- Public browser and JSON API remain same-origin through the existing Vite `/api` proxy.
+- Auth uses Django's built-in server-side sessions and CSRF. The browser does **not** keep bearer access tokens in `localStorage`.
+- Models: concrete custom `User` with case-insensitive username/email uniqueness; `PlayerPaths` (one account -> current modules); `SocialIdentity` (provider + immutable provider subject).
+- Authorization: all personal reads/writes derive user from verified Django `request.user`; no caller-provided owner ID is accepted.
+- Google: optional Google Identity Services `credential` -> verified ID token -> either social-subject lookup or new unlinked user. Same-email existing accounts must explicitly link while already signed in.
+- Admin: `config.admin_settings` uses an independent `config.admin_urls`, loopback remote-address guard and admin-only cookies on port 8001. Main port 8000 has no `/admin/` route.
+- Onboarding, detailed goals/equipment, sensitive physique data and game progression remain later phases; do not prematurely introduce them in Phase 2.

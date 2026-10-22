@@ -17,6 +17,8 @@ if ($LASTEXITCODE -ne 0) { throw 'Configuration failed.' }
 if ($LASTEXITCODE -ne 0) { throw 'Django checks failed.' }
 & $python backend/manage.py migrate --noinput
 if ($LASTEXITCODE -ne 0) { throw 'Database migration failed. Check PostgreSQL service and credentials.' }
+& $python backend/manage.py migrate --noinput --settings=config.admin_settings
+if ($LASTEXITCODE -ne 0) { throw 'Separate admin schema migrations failed.' }
 Push-Location frontend
 try {
     npm.cmd ci

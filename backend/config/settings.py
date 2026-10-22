@@ -14,8 +14,12 @@ else:
 SECRET_KEY = LOCAL['secret_key']
 DEBUG = False
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '[::1]']
+# Vite runs on port 5173 and proxies /api/ to Django on port 8000.
+# Browsers still send the Vite page's Origin header on POST/PUT. Explicitly
+# allow only those local development origins; all other origins remain blocked.
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1:5173', 'http://localhost:5173']
 INSTALLED_APPS = ['django.contrib.auth', 'django.contrib.contenttypes', 'django.contrib.sessions', 'rest_framework', 'core']
-MIDDLEWARE = ['django.middleware.security.SecurityMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.middleware.clickjacking.XFrameOptionsMiddleware']
+MIDDLEWARE = ['config.private_api_cache.PrivateAPICacheMiddleware', 'django.middleware.security.SecurityMiddleware', 'django.contrib.sessions.middleware.SessionMiddleware', 'django.middleware.common.CommonMiddleware', 'django.middleware.csrf.CsrfViewMiddleware', 'django.contrib.auth.middleware.AuthenticationMiddleware', 'django.middleware.clickjacking.XFrameOptionsMiddleware']
 ROOT_URLCONF = 'config.urls'
 WSGI_APPLICATION = 'config.wsgi.application'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -39,3 +43,18 @@ SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 X_FRAME_OPTIONS = 'DENY'
 SECURE_CONTENT_TYPE_NOSNIFF = True
+
+# Phase 2: browser-based session auth and optional Google Identity Services.
+GOOGLE_CLIENT_ID = os.environ.get('MONARCH_GOOGLE_CLIENT_ID', LOCAL.get('google_client_id', '')).strip()
+TEMPLATES = [{'BACKEND': 'django.template.backends.django.DjangoTemplates', 'DIRS': [],
+              'APP_DIRS': True, 'OPTIONS': {'context_processors': [
+                  'django.template.context_processors.request',
+                  'django.contrib.auth.context_processors.auth',
+                  'django.contrib.messages.context_processors.messages',
+              ]}}]
+STATIC_URL = '/static/'
+CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                      'LOCATION': 'monarch-local-auth-throttle'}}
+SESSION_COOKIE_AGE = 604800
+SESSION_COOKIE_NAME = 'monarch_session'
+# This build runs on 127.0.0.1 over HTTP. Use Secure cookies when deploying HTTPS.

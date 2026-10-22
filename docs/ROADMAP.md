@@ -21,3 +21,8 @@
 Deliver each phase as a complete integrated ZIP, with migrations, compatible pinned versions,
 Windows commands, change log and honest verification record. No surprise global upgrades.
 Security updates are reviewed and tested rather than permanently freezing vulnerable versions.
+
+## Current release notes
+- **Phase 1:** Completed and retained from user-supplied source.
+- **Phase 2:** Implemented account/authentication, scoped path preferences, optional Google sign-in and isolated admin in this package. Acceptance pending user's Windows/PostgreSQL tests and live Google authentication (optional).
+- **Phase 3:** Next implementation milestone: per-account onboarding, goals, experience, equipment, schedule and preferences.
