@@ -1,61 +1,63 @@
-# Monarch System — Phase 2 (v0.2.1)
+# Monarch System — Phase 3 (v0.3.0)
 
-Gamified, local-first **Workout + Study + Learning** companion. Built on top of the genuine Phase 1 project, retaining React/TypeScript/Vite, Django, PostgreSQL and the original visual design.
+Local-first gamified personal development app for **Workout, Study and Learning**, continuing the original Phase 1/2 project. Python Django + PostgreSQL backend and React/TypeScript/Vite frontend. No mandatory paid APIs.
 
-**Owner:** Nobelesse | **Windows project:** `E:\Projects\Monarch-System`
+**Owner:** Nobelesse | **Windows folder:** `E:\Projects\Monarch-System` | **GitHub:** https://github.com/Nobelesse/Monarch-System
 
-## Features ready in Phase 2
+## Phase 3 functionality
 
-- Phase 1 dark dashboard, paths, roadmap and system diagnostics.
-- New **Account** screen with register, sign in, sign out and personal account information.
-- Server-side password hashing, session cookies, CSRF protection and ownership-enforced account path selections.
-- Optional Google Identity Services sign-in and account linking (requires your own free Google OAuth web client ID).
-- Isolated loopback-only Django admin service, **not** exposed on the public backend port.
-- Automated tests for basic security, cross-user isolation, account flows and mocked Google verification.
+- Existing Phase 2 registration, login, session auth, Google identity option and protected path choices retained.
+- **Onboarding** sidebar page: five-step guided setup of display name/timezone/language/accessibility, per-path goal/experience/equipment or topics, weekly availability, optional private height/weight, and review/completion.
+- Workouts, Study and Learning are configured independently or together; draft state survives refresh, sign-out and sign-in after saving.
+- Django account-owned data and additive database migration `0003_onboarding` with security and validation checks.
+- This release does **not** implement plan generation, XP or actual training recommendations. Full UI translation beyond the onboarding preference field is also not available yet.
 
-Not ready: workout plan generation, XP, quests, study session logging, installable PWA, public/phone access or production deployment. There is **no fake progress**. Phase 3 is richer onboarding.
+**Release instructions and checklist:** [docs/PHASE3.md](docs/PHASE3.md)
+**Earlier phase authentication and OAuth details:** [docs/PHASE2.md](docs/PHASE2.md)
 
-## Requirements
+## Prerequisites
 
-- **Python 3.12.x**; `py -3.12` (existing Windows setup uses Python 3.12.10).
-- **Node.js 22.12+**, within major version 22; npm 10.
-- Local **PostgreSQL 17**, existing database `monarch_system` and user `monarch_app`.
-- VS Code and Google Chrome.
+- Python 3.12.x, Node.js 22.12–22.x, npm 10, PostgreSQL 17.
+- Existing local `monarch_system` database, `monarch_app` user, ignored `backend/config.local.json`.
+- Visual Studio Code and Google Chrome.
 
-## Upgrade from your tested Phase 1 folder
+## Upgrade existing Phase 2 project (Windows PowerShell)
 
-1. Back up the current project and make a PostgreSQL database backup before any schema migration. Avoid sharing private backups or `backend/config.local.json`.
-2. Download this complete `Monarch-System-Phase2-v0.2.1.zip`.
-3. Extract its **contents directly into** `E:\Projects\Monarch-System` (no nested folder). All versioned source code is updated. No `.venv`, `node_modules`, local config or database is included in the ZIP.
-4. In VS Code, open **two PowerShell terminals** and run:
+Stop running backend, frontend and admin PowerShell terminals (`Ctrl+C`), back up both your database and project folder, and download the full integrated Phase 3 ZIP to Downloads.
 
 ```powershell
-Set-Location "E:\Projects\Monarch-System"
-# If ZIP is in Downloads, after taking backups:
-Expand-Archive -LiteralPath "$env:USERPROFILE\Downloads\Monarch-System-Phase2-v0.2.1.zip" -DestinationPath "E:\Projects\Monarch-System" -Force
-code .
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\setup.ps1
+Set-Location 'E:\Projects\Monarch-System'
+Expand-Archive -LiteralPath "$env:USERPROFILE\Downloads\Monarch-System-Phase3-v0.3.0.zip" -DestinationPath 'E:\Projects\Monarch-System' -Force
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\upgrade_phase3.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test.ps1
 ```
 
-The setup script reuses your existing `.venv` and `backend/config.local.json`, installs pinned dependencies, runs Django migrations **without dropping your database**, performs a production Vite build, and never prompts for an existing config password.
+`upgrade_phase3.ps1` checks existing credentials and applies additive migrations without reinstalling your packages. If this is a first-time installation, use `scripts/setup.ps1` instead (see Phase 2 docs).
 
-**Terminal 1 — Django backend**:
+**VS Code terminal 1 — Backend**
 
 ```powershell
-Set-Location "E:\Projects\Monarch-System"
+Set-Location 'E:\Projects\Monarch-System'
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\backend.ps1
 ```
 
-**Terminal 2 — Vite frontend**:
+**VS Code terminal 2 — Frontend**
 
 ```powershell
-Set-Location "E:\Projects\Monarch-System"
+Set-Location 'E:\Projects\Monarch-System'
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\frontend.ps1
 ```
 
-**Open in Chrome**: http://127.0.0.1:5173/
+**VS Code terminal 3 — Chrome**
 
-For convenience, in a third PowerShell prompt run `Start-Process chrome 'http://127.0.0.1:5173'` if `chrome` is on your PATH. Otherwise paste the address into Chrome manually. The VS Code terminal is only used to host the app, not as a browser.
+```powershell
+Set-Location 'E:\Projects\Monarch-System'
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\chrome.ps1
+```
+
+App: `http://127.0.0.1:5173/` → **Login → Onboarding**.
+
+Automated tests use in-memory SQLite and don't mutate your development PostgreSQL data. Real PostgreSQL migrations and the Chrome manual checklist still must be verified on your PC. Do not expose the local admin publicly or upload `backend/config.local.json`.
 
 ## Optional local admin (third terminal)
 

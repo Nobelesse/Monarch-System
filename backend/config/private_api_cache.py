@@ -5,6 +5,6 @@ class PrivateAPICacheMiddleware:
 
     def __call__(self, request):
         response = self.get_response(request)
-        if request.path.startswith('/api/auth/') or request.path.startswith('/api/paths/'):
+        if request.path.startswith('/api/auth/') or request.path.startswith('/api/paths/') or request.path.startswith('/api/onboarding/'):
             response['Cache-Control'] = 'no-store'
         return response

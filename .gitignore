@@ -13,3 +13,6 @@ backups/
 *.log
 .pytest_cache/
 .DS_Store
+
+# Editor-local environment preferences
+.vscode/

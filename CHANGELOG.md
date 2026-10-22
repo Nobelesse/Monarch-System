@@ -16,3 +16,12 @@
 
 ## v0.1.0 — Phase 1 foundation
 - Original responsive React shell, Django backend, PostgreSQL configuration, initial User model and diagnostics.
+
+## 0.3.0 — Player onboarding
+- Add five-step private, resumable onboarding for selected paths.
+- Add four per-account models and additive PostgreSQL migration core.0003_onboarding.
+- Add authenticated `/api/onboarding/` GET/PUT with CSRF, type validation and atomic writes.
+- Add per-path goals, experience, equipment/topics and weekly availability.
+- Add optional private height/weight, clearing and separate storage.
+- Add onboarding regression/security tests and phase-specific Windows upgrade helper.
+- No dependency upgrades. Full Windows/PostgreSQL and frontend build verification pending.

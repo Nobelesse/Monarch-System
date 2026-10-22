@@ -204,3 +204,165 @@ class AdminIsolationTests(TestCase):
         request = RequestFactory().get('/admin/', REMOTE_ADDR='127.0.0.1')
         res = LoopbackOnlyMiddleware(lambda r: JsonResponse({'ok':True}))(request)
         self.assertEqual(res.status_code, 200)
+
+
+from core.models import PlayerProfile, ModulePreference, WeeklyAvailability, PrivatePhysique
+
+
+class OnboardingTests(TestCase):
+    """Phase 3 integration, privacy and negative security tests."""
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=True)
+        self.client.get('/api/auth/csrf/')
+        self.password = PASSWORD
+
+    def send(self, url, data, method='put', csrf=True, **headers):
+        token = self.client.cookies['csrftoken'].value
+        return getattr(self.client, method)(url, data=json.dumps(data), content_type='application/json',
+            **({'HTTP_X_CSRFTOKEN': token} if csrf else {}), **headers)
+
+    def register(self, username='onboarder', modules=None):
+        r = self.send('/api/auth/register/', {'username': username, 'email': f'{username}@example.com',
+            'password': PASSWORD, 'modules': modules or ['workout']}, method='post')
+        self.assertEqual(r.status_code, 201, r.content)
+        return r.json()['user']['id']
+
+    def setup_data(self, modules=('workout',), completed=True):
+        prefs = {module: {'goal': 'Build steady habits', 'experience': 'beginner',
+            'equipment': ['bodyweight'] if module == 'workout' else [],
+            'topics': [] if module == 'workout' else ['Python']} for module in modules}
+        return {'display_name': 'My Monarch', 'timezone': 'Asia/Kolkata', 'language': 'en',
+            'reduced_motion': True, 'high_contrast': False, 'current_step': 5, 'completed': completed,
+            'preferences': prefs, 'schedule': [{'module': m, 'weekday': 1, 'minutes': 45} for m in modules],
+            'physique': {'height_cm': 175.0 if 'workout' in modules else None,
+                         'weight_kg': 70.0 if 'workout' in modules else None}}
+
+    def test_guest_requires_authentication(self):
+        self.assertEqual(self.client.get('/api/onboarding/').status_code, 401)
+        self.assertEqual(self.send('/api/onboarding/', self.setup_data()).status_code, 401)
+
+    def test_csrf_required_for_onboarding_write(self):
+        self.register()
+        self.assertEqual(self.send('/api/onboarding/', self.setup_data(), csrf=False).status_code, 403)
+
+    def test_initial_draft_and_get_are_account_scoped(self):
+        self.register()
+        r = self.client.get('/api/onboarding/')
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r.json()['modules'], ['workout'])
+        self.assertFalse(r.json()['onboarding']['completed'])
+        self.assertEqual(r.json()['onboarding']['preferences']['workout']['goal'], '')
+        self.assertEqual(PlayerProfile.objects.count(), 1)
+
+    def test_save_draft_and_resume(self):
+        self.register(modules=['study', 'learning'])
+        data = self.setup_data(('study','learning'), completed=False)
+        data['current_step'] = 3
+        r = self.send('/api/onboarding/', data)
+        self.assertEqual(r.status_code, 200, r.content)
+        self.assertEqual(self.client.get('/api/onboarding/').json()['onboarding']['current_step'], 3)
+        self.assertEqual(ModulePreference.objects.count(), 2)
+        self.assertEqual(WeeklyAvailability.objects.count(), 2)
+        self.assertFalse(r.json()['onboarding']['completed'])
+
+    def test_completion_and_repeated_save_idempotent(self):
+        self.register(modules=['workout', 'study', 'learning'])
+        data = self.setup_data(('workout','study','learning'))
+        for _ in range(2):
+            r = self.send('/api/onboarding/', data)
+            self.assertEqual(r.status_code, 200, r.content)
+            self.assertTrue(r.json()['onboarding']['completed'])
+        self.assertEqual(ModulePreference.objects.count(), 3)
+        self.assertEqual(WeeklyAvailability.objects.count(), 3)
+        self.assertEqual(PrivatePhysique.objects.count(), 1)
+
+    def test_completion_requires_goal_and_schedule_for_every_module(self):
+        self.register(modules=['workout','study'])
+        data=self.setup_data(('workout','study'))
+        data['preferences']['study']['goal']=''
+        self.assertEqual(self.send('/api/onboarding/', data).status_code, 400)
+        self.assertEqual(ModulePreference.objects.count(), 0)
+        data['preferences']['study']['goal']='Pass exam'
+        data['schedule'] = data['schedule'][:1]
+        self.assertEqual(self.send('/api/onboarding/', data).status_code, 400)
+        self.assertEqual(WeeklyAvailability.objects.count(), 0)
+
+    def test_field_validation_cannot_modify_owner(self):
+        self.register()
+        data=self.setup_data()
+        data['user_id']=9999
+        self.assertEqual(self.send('/api/onboarding/', data).status_code, 400)
+        self.assertEqual(PlayerProfile.objects.count(), 0)
+
+    def test_cross_account_isolation_private_physique(self):
+        first=self.register(username='first')
+        self.assertEqual(self.send('/api/onboarding/', self.setup_data()).status_code, 200)
+        self.send('/api/auth/logout/', {}, method='post')
+        second=self.register(username='second',modules=['learning'])
+        result=self.client.get('/api/onboarding/').json()
+        self.assertIsNone(result['onboarding']['physique']['height_cm'])
+        self.assertNotIn('workout', result['onboarding']['preferences'])
+        self.assertEqual(PrivatePhysique.objects.count(), 1)
+        self.assertEqual(PrivatePhysique.objects.get().user_id, first)
+        self.assertNotEqual(first,second)
+
+    def test_physique_never_exposed_in_account_or_public_api(self):
+        self.register()
+        self.send('/api/onboarding/', self.setup_data())
+        self.assertNotIn('height_cm', self.client.get('/api/auth/me/').content.decode())
+        self.assertNotIn('height_cm', self.client.get('/api/system/').content.decode())
+
+    def test_clear_private_data(self):
+        self.register()
+        data=self.setup_data()
+        self.send('/api/onboarding/', data)
+        data['physique']={'height_cm': None, 'weight_kg': None}
+        self.assertEqual(self.send('/api/onboarding/', data).status_code, 200)
+        self.assertEqual(PrivatePhysique.objects.count(), 0)
+
+    def test_invalid_types_rejected_without_partial_updates(self):
+        self.register()
+        invalids = [
+            ('language', []), ('timezone', 'Mars/Olympus'), ('current_step', True),
+            ('high_contrast', 'yes')
+        ]
+        for field, value in invalids:
+            data=self.setup_data();data[field]=value
+            self.assertEqual(self.send('/api/onboarding/', data).status_code, 400, field)
+        self.assertEqual(ModulePreference.objects.count(),0)
+
+    def test_duplicate_day_rejected(self):
+        self.register()
+        data=self.setup_data()
+        data['schedule'].append(dict(data['schedule'][0]))
+        self.assertEqual(self.send('/api/onboarding/',data).status_code,400)
+
+    def test_schedule_rejects_bool_and_fractions(self):
+        self.register()
+        for field,val in [('weekday', True),('minutes',True),('minutes',13),('minutes',22)]:
+            data=self.setup_data()
+            data['schedule'][0][field]=val
+            self.assertEqual(self.send('/api/onboarding/',data).status_code,400)
+
+    def test_unselected_module_rejected(self):
+        self.register(modules=['study'])
+        data=self.setup_data(('study',))
+        data['preferences']['workout'] = self.setup_data()['preferences']['workout']
+        self.assertEqual(self.send('/api/onboarding/',data).status_code,400)
+
+    def test_changing_paths_reopens_onboarding(self):
+        self.register()
+        self.assertEqual(self.send('/api/onboarding/',self.setup_data()).status_code,200)
+        r=self.send('/api/paths/',{'modules':['workout','study']})
+        self.assertEqual(r.status_code,200,r.content)
+        self.assertFalse(self.client.get('/api/onboarding/').json()['onboarding']['completed'])
+
+    def test_untrusted_browser_origin_rejected(self):
+        self.register()
+        r=self.send('/api/onboarding/',self.setup_data(),HTTP_HOST='127.0.0.1:8000',
+             HTTP_ORIGIN='https://evil.example')
+        self.assertEqual(r.status_code,403)
+
+    def test_public_admin_not_exposed(self):
+        self.register()
+        self.assertEqual(self.client.get('/admin/').status_code,404)

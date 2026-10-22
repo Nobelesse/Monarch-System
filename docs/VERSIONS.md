@@ -29,3 +29,6 @@ Compatibility is not a claim of identical OS behavior. Windows first-run remains
 
 ## v0.2.1 (hotfix)
 - No dependency version changes. Fixes browser-origin CSRF handling and frontend API error messages.
+
+## v0.3.0 — Phase 3
+Integrated onboarding, model migration 0003, server-side validation, private optional physique data, draft/complete flows, frontend screens and tests. See docs/PHASE3.md. Tests on the developer Windows host remain pending.

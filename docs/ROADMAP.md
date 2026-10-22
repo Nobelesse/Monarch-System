@@ -24,5 +24,5 @@ Security updates are reviewed and tested rather than permanently freezing vulner
 
 ## Current release notes
 - **Phase 1:** Completed and retained from user-supplied source.
-- **Phase 2:** Implemented account/authentication, scoped path preferences, optional Google sign-in and isolated admin in this package. Acceptance pending user's Windows/PostgreSQL tests and live Google authentication (optional).
-- **Phase 3:** Next implementation milestone: per-account onboarding, goals, experience, equipment, schedule and preferences.
+- **Phase 2:** Registration, login, account-owned paths and local admin implemented; user confirmed 6 browser/manual checks and Phase 2 GitHub tags are pushed. v0.2.1 full automated rerun and optional live Google verification are not documented as passing.
+- **Phase 3:** Code delivered in v0.3.0 with database migration, API and five-step onboarding interface. Final PostgreSQL/Windows verification and user acceptance pending; see docs/PHASE3.md.

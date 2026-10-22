@@ -20,3 +20,7 @@ The owner reported all **26/26 backend tests passed** and a successful Vite prod
 Root cause identified in source: Vite proxies browser POST requests between different port origins; Django `CSRF_TRUSTED_ORIGINS` was not configured for the Vite page origin. The previous Django tests did not supply the browser `Origin` header.
 
 This hotfix adds three CSRF regression/security tests and validates/handles non-JSON responses in the frontend. These new tests **still require execution on the owner's Windows environment**; their passing status is not yet reported. The v0.2.0 26-test pass does not establish a v0.2.1 29-test pass.
+
+
+## v0.3.0 validation state
+Static Python AST parsing and TypeScript TSX transpilation were executed during packaging. Full Django tests and Vite production build were NOT executed in this environment (dependency downloads blocked). Run `scripts/test.ps1` and the manual checklist in `docs/PHASE3.md` on Windows before tagging the release.

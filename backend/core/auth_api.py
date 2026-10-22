@@ -15,7 +15,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from .models import PlayerPaths, SocialIdentity
+from .models import PlayerPaths, SocialIdentity, PlayerProfile
 
 ALLOWED_MODULES = {'workout', 'study', 'learning'}
 
@@ -149,6 +149,8 @@ def paths(request):
     except ValueError as e:
         return reply(str(e))
     own, _ = PlayerPaths.objects.get_or_create(user=request.user)
+    if own.modules != modules:
+        PlayerProfile.objects.filter(user=request.user).update(completed_at=None, current_step=2)
     own.modules = modules
     own.save(update_fields=['modules', 'updated_at'])
     return JsonResponse({'modules': own.modules})
