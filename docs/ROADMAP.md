@@ -1,6 +1,6 @@
 # Phased delivery and acceptance
 1. Foundation: isolated project, locked dependencies, UI shell, PostgreSQL configuration,
-   diagnostics, migration and reproducible Windows instructions. This release.
+   diagnostics, migration and reproducible Windows instructions. Completed.
 2. Accounts: registration/login/logout, Google OAuth configuration, ownership permissions,
    separate local-only authenticated admin. Accept only after cross-user isolation checks.
 3. Onboarding: selected modules, goals, experience, equipment and schedule stored per account;
@@ -25,4 +25,7 @@ Security updates are reviewed and tested rather than permanently freezing vulner
 ## Current release notes
 - **Phase 1:** Completed and retained from user-supplied source.
 - **Phase 2:** Registration, login, account-owned paths and local admin implemented; user confirmed 6 browser/manual checks and Phase 2 GitHub tags are pushed. v0.2.1 full automated rerun and optional live Google verification are not documented as passing.
-- **Phase 3:** Code delivered in v0.3.0 with database migration, API and five-step onboarding interface. Final PostgreSQL/Windows verification and user acceptance pending; see docs/PHASE3.md.
+- **Phase 3:** Accepted by user: all 46 backend tests and Vite build passed; all 10 browser manual checks passed; validated readable PostgreSQL archive. Git main contains commit c305fb3. Tag confirmation independent.
+- **Phase 4:** v0.4.1 refinement adds plan focus/pace, an expanded exercise library, bounded prescription edits, reordering and a redesigned Workout screen; local acceptance pending. See docs/PHASE4_REFINEMENTS.md.
+
+**Phase 4 v0.4.2 polish:** fresh-start authentication, completed onboarding handling, exercise movement previews, dark-abyss game art.

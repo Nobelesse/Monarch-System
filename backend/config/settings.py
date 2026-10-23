@@ -58,3 +58,6 @@ CACHES = {'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'
 SESSION_COOKIE_AGE = 604800
 SESSION_COOKIE_NAME = 'monarch_session'
 # This build runs on 127.0.0.1 over HTTP. Use Secure cookies when deploying HTTPS.
+
+# Phase 4.2: never use a persistent browser session after closing Chrome.
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

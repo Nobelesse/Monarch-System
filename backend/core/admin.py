@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, PlayerPaths, SocialIdentity, PlayerProfile, ModulePreference, WeeklyAvailability, PrivatePhysique
+from .models import User, PlayerPaths, SocialIdentity, PlayerProfile, ModulePreference, WeeklyAvailability, PrivatePhysique, WorkoutExercise, WorkoutPlan, WorkoutSession, WorkoutPlanItem
 
 admin.site.register(User, UserAdmin)
 
@@ -35,3 +35,27 @@ class WeeklyAvailabilityAdmin(admin.ModelAdmin):
     search_fields = ('user__username',)
 
 # Optional body measurements are purposefully excluded from the admin UI.
+
+
+@admin.register(WorkoutExercise)
+class WorkoutExerciseAdmin(admin.ModelAdmin):
+    list_display = ('name', 'movement', 'equipment', 'minimum_level', 'active')
+    list_filter = ('movement', 'equipment', 'minimum_level', 'active')
+    search_fields = ('name', 'slug')
+
+@admin.register(WorkoutPlan)
+class WorkoutPlanAdmin(admin.ModelAdmin):
+    list_display = ('user', 'experience_snapshot', 'generated_at')
+    search_fields = ('user__username',)
+    readonly_fields = ('source_signature', 'goal_snapshot', 'experience_snapshot',
+                       'equipment_snapshot', 'avoid_tags', 'focus_mode', 'pace', 'generated_at')
+
+@admin.register(WorkoutSession)
+class WorkoutSessionAdmin(admin.ModelAdmin):
+    list_display = ('plan', 'weekday', 'focus', 'theme', 'planned_minutes')
+    readonly_fields = ('plan', 'weekday', 'focus', 'theme', 'available_minutes', 'planned_minutes')
+
+@admin.register(WorkoutPlanItem)
+class WorkoutPlanItemAdmin(admin.ModelAdmin):
+    list_display = ('session', 'position', 'exercise')
+    readonly_fields = ('session', 'position', 'exercise', 'sets', 'reps', 'rest_seconds')

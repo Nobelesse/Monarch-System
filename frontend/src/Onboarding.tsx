@@ -43,7 +43,7 @@ export default function Onboarding({userId,onCompleted}:{userId:number;onComplet
  useEffect(()=>{let active=true; setLoading(true); setState(null); setError('');setSuccess('');
   void request<OnboardingPayload>('/api/onboarding/').then(data=>{
    if(!active)return;
-   setState(data.onboarding);setModules(data.modules);setStep(data.onboarding.current_step);
+   setState(data.onboarding);setModules(data.modules);setStep(data.onboarding.completed?0:data.onboarding.current_step);
    setTopicInputs(Object.fromEntries(data.modules.map(m=>[m,(data.onboarding.preferences[m]?.topics||[]).join(', ')])));
   }).catch(err=>{if(active)setError(err instanceof Error?err.message:'Could not load onboarding.');}).finally(()=>{if(active)setLoading(false);});
   return()=>{active=false;};
@@ -70,11 +70,11 @@ export default function Onboarding({userId,onCompleted}:{userId:number;onComplet
   try {
    const validPreferences = Object.fromEntries(modules.map(m=>[m,state.preferences[m]||defaultPreference()]));
    const data=await request<OnboardingPayload>('/api/onboarding/','PUT',{
-    ...state,preferences:validPreferences,current_step:nextStep,completed
+    ...state,preferences:validPreferences,current_step:nextStep,completed:completed||state.completed
    });
-   setState(data.onboarding);setModules(data.modules);setStep(data.onboarding.current_step);
+   setState(data.onboarding);setModules(data.modules);setStep(nextStep);
    setTopicInputs(Object.fromEntries(data.modules.map(m=>[m,(data.onboarding.preferences[m]?.topics||[]).join(', ')])));
-   setSuccess(completed?'Onboarding complete. Your profile is saved securely.':'Draft saved to your account.');
+   setSuccess(completed?'Onboarding complete. Your profile is saved securely.':state.completed?'Profile changes saved.':'Draft saved to your account.');
    if(completed) onCompleted();
   }catch(err){setError(err instanceof Error?err.message:'Unable to save.');}
   finally{setBusy(false);}
@@ -86,13 +86,14 @@ export default function Onboarding({userId,onCompleted}:{userId:number;onComplet
  return <div className={'ob-root '+(state.high_contrast?'ob-contrast':'')+(state.reduced_motion?' ob-reduced':'')}>
   <section className="ob-panel ob-intro">
    <span className="ob-kicker">♛ &nbsp; PLAYER INITIALIZATION · PHASE 03</span>
-   <h2>{state.completed?'Edit your player profile':'Shape your next chapter.'}</h2>
+   <h2>{state.completed?'Your player profile is complete':'Shape your next chapter.'}</h2>
    <p>These are your real goals and your available time. No invented XP, no automatic fitness advice. You stay in control.</p>
-   <div className="ob-progress" role="progressbar" aria-label="Onboarding step" aria-valuenow={step} aria-valuemin={1} aria-valuemax={5}>
+   {step>0&&<div className="ob-progress" role="progressbar" aria-label="Onboarding step" aria-valuenow={step} aria-valuemin={1} aria-valuemax={5}>
     {['Identity','Goals','Schedule','Privacy','Review'].map((name,i)=><button key={name} type="button" className={step===i+1?'current':step>i+1?'done':''} aria-current={step===i+1?'step':undefined} onClick={()=>{setStep(i+1);setError('');setSuccess('Unsaved changes will be saved when you continue.');}}><span>{String(i+1).padStart(2,'0')}</span>{name}</button>)}
-   </div>
+   </div>}
   </section>
-  <section className="ob-panel" aria-label="Onboarding editor">
+  {step===0&&<section className="ob-panel ob-complete" aria-label="Onboarding completed"><div className="ob-success-badge">✓ COMPLETED & SAVED</div><h3>Your profile is ready.</h3><p>Your completed onboarding is saved on your account. You do not need to repeat step 05 or click Complete onboarding every time you sign in.</p><div className="ob-review"><div><span>PLAYER</span><strong>{state.display_name}</strong></div><div><span>YOUR PATHS</span><strong>{modules.join(' · ')}</strong></div><div><span>WEEKLY TIME</span><strong>{state.schedule.reduce((total,entry)=>total+entry.minutes,0)} min</strong></div><div><span>TIMEZONE</span><strong>{state.timezone}</strong></div></div><button className="ob-action" onClick={()=>setStep(1)}>Review / edit profile ↗</button></section>}
+  {step>0&&<section className="ob-panel" aria-label="Onboarding editor">
    {step===1&&<div className="ob-section"><span className="ob-kicker">01 / 05 · YOUR IDENTITY</span><h3>Who are you becoming?</h3><p className="ob-muted">You can edit these at any time. Your login username stays unchanged.</p>
     <div className="ob-form-grid"><label>Display name<input required maxLength={48} value={state.display_name} onChange={e=>update({display_name:e.target.value})}/></label>
      <label>Timezone (IANA)<input required maxLength={64} value={state.timezone} onChange={e=>update({timezone:e.target.value})} placeholder="Asia/Kolkata"/><small>Examples: Asia/Kolkata, Europe/London. Used for future schedules.</small></label>
@@ -126,8 +127,8 @@ export default function Onboarding({userId,onCompleted}:{userId:number;onComplet
    <div className="ob-actions"><button type="button" className="ob-outline" disabled={busy||step===1} onClick={()=>{setStep(step-1);setError('');setSuccess('');}}>← Back</button>
     <button type="button" className="ob-outline" disabled={busy} onClick={()=>void save(step,false)}>{busy?'Saving…':'Save draft'}</button>
     {step<5?<button type="button" className="ob-action" disabled={busy} onClick={()=>void save(step+1,false)}>Save & continue →</button>
-     :<button type="button" className="ob-action" disabled={busy} onClick={()=>void save(5,true)}>{busy?'Saving…':'Complete onboarding ✓'}</button>}
+     :<button type="button" className="ob-action" disabled={busy} onClick={()=>void save(5,true)}>{busy?'Saving…':state.completed?'Save profile changes ✓':'Complete onboarding ✓'}</button>}
    </div>
-  </section>
+  </section>}
  </div>;
 }

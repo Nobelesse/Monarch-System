@@ -97,3 +97,63 @@ class PrivatePhysique(models.Model):
 
     def __str__(self):
         return f'Private measurements for {self.user_id}'
+
+
+class WorkoutExercise(models.Model):
+    """Manually curated, versioned exercises; no generated medical advice."""
+    slug = models.SlugField(max_length=72, unique=True)
+    name = models.CharField(max_length=90)
+    movement = models.CharField(max_length=16)  # squat, hinge, push, pull, core, mobility
+    equipment = models.CharField(max_length=24, default='bodyweight')
+    minimum_level = models.CharField(max_length=16, default='beginner')
+    caution_tags = models.JSONField(default=list)
+    instructions = models.CharField(max_length=250)
+    active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class WorkoutPlan(models.Model):
+    """One current draft per owner. Phase 5 will add execution/history."""
+    user = models.OneToOneField('core.User', on_delete=models.CASCADE, related_name='workout_plan')
+    source_signature = models.CharField(max_length=64)
+    goal_snapshot = models.CharField(max_length=160)
+    experience_snapshot = models.CharField(max_length=16)
+    equipment_snapshot = models.JSONField(default=list)
+    avoid_tags = models.JSONField(default=list)
+    focus_mode = models.CharField(max_length=16, default='balanced')
+    pace = models.CharField(max_length=16, default='standard')
+    generated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'Workout draft for {self.user_id}'
+
+
+class WorkoutSession(models.Model):
+    plan = models.ForeignKey(WorkoutPlan, on_delete=models.CASCADE, related_name='days')
+    weekday = models.PositiveSmallIntegerField()
+    available_minutes = models.PositiveSmallIntegerField()
+    planned_minutes = models.PositiveSmallIntegerField()
+    focus = models.CharField(max_length=16)  # strength or mobility
+    theme = models.CharField(max_length=16, default='full_body')
+
+    class Meta:
+        ordering = ['weekday']
+        constraints = [models.UniqueConstraint(fields=['plan', 'weekday'], name='monarch_workout_unique_day')]
+
+
+class WorkoutPlanItem(models.Model):
+    session = models.ForeignKey(WorkoutSession, on_delete=models.CASCADE, related_name='items')
+    exercise = models.ForeignKey(WorkoutExercise, on_delete=models.PROTECT)
+    position = models.PositiveSmallIntegerField()
+    sets = models.PositiveSmallIntegerField()
+    reps = models.CharField(max_length=30)
+    rest_seconds = models.PositiveSmallIntegerField()
+
+    class Meta:
+        ordering = ['position']
+        constraints = [models.UniqueConstraint(fields=['session', 'position'], name='monarch_workout_unique_position')]

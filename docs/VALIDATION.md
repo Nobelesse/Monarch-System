@@ -24,3 +24,6 @@ This hotfix adds three CSRF regression/security tests and validates/handles non-
 
 ## v0.3.0 validation state
 Static Python AST parsing and TypeScript TSX transpilation were executed during packaging. Full Django tests and Vite production build were NOT executed in this environment (dependency downloads blocked). Run `scripts/test.ps1` and the manual checklist in `docs/PHASE3.md` on Windows before tagging the release.
+
+## Phase 4 (v0.4.0)
+66 test functions defined in core/test suite (46 from earlier phases + 20 workout tests). The Phase 4 authoring environment verified Python syntax and TypeScript TSX parsing, but Django and Vite production testing require the user's local dependency environment. See docs/PHASE4.md.

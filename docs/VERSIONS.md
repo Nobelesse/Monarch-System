@@ -1,3 +1,7 @@
+## v0.4.2 — Dark Abyss fixes
+
+- Fresh start sign-in, completed onboarding summary, local animated 3D movement-family guide, premium neon hero (see [PHASE4_2.md](PHASE4_2.md)).
+
 # Release version record
 
 Windows target: Python 3.12.10, Node 22.23.2, npm 10.9.8, PostgreSQL 17.11.
@@ -32,3 +36,8 @@ Compatibility is not a claim of identical OS behavior. Windows first-run remains
 
 ## v0.3.0 — Phase 3
 Integrated onboarding, model migration 0003, server-side validation, private optional physique data, draft/complete flows, frontend screens and tests. See docs/PHASE3.md. Tests on the developer Windows host remain pending.
+
+## v0.4.0 — Phase 4
+28 manually curated exercises, core.0004 migration, account-owned plan generation and substitutions, conservative rest-oriented scheduling, Workout UI and 20 additional test cases. Dependency versions retained from v0.3.0. Local Windows validation required. See docs/PHASE4.md.
+
+- **v0.4.1** — Phase 4 refinement: curated catalog expansion, selectable focus/pace, smarter splits, editable account-owned workout drafts, refreshed interface. Local Django/React/PostgreSQL validation pending.

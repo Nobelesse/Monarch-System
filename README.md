@@ -1,18 +1,22 @@
-# Monarch System — Phase 3 (v0.3.0)
+# Monarch System — Phase 4 Dark Abyss Fixes (v0.4.2)
 
 Local-first gamified personal development app for **Workout, Study and Learning**, continuing the original Phase 1/2 project. Python Django + PostgreSQL backend and React/TypeScript/Vite frontend. No mandatory paid APIs.
 
 **Owner:** Nobelesse | **Windows folder:** `E:\Projects\Monarch-System` | **GitHub:** https://github.com/Nobelesse/Monarch-System
 
-## Phase 3 functionality
+**v0.4.2 fixes:** Fresh sign-in on every full browser load, login routing by persisted onboarding completion, a completed-profile summary/edit flow, 3D movement-family exercise previews (not exact biomechanical demonstrations), and new neon dark-abyss Overview illustration. No database schema changes. See [v0.4.2 details](docs/PHASE4_2.md).
+
+## Phase 4 functionality
 
 - Existing Phase 2 registration, login, session auth, Google identity option and protected path choices retained.
 - **Onboarding** sidebar page: five-step guided setup of display name/timezone/language/accessibility, per-path goal/experience/equipment or topics, weekly availability, optional private height/weight, and review/completion.
 - Workouts, Study and Learning are configured independently or together; draft state survives refresh, sign-out and sign-in after saving.
 - Django account-owned data and additive database migration `0003_onboarding` with security and validation checks.
-- This release does **not** implement plan generation, XP or actual training recommendations. Full UI translation beyond the onboarding preference field is also not available yet.
+- **Workout** sidebar provides 63 curated exercises, explicit balanced/strength/endurance/mobility focus, easy/standard pacing, weekday-based upper/lower/full-body training splits, broad movement exclusions, same-pattern substitutions, bounded sets/reps/rest editing, and exercise reordering. All drafts remain account-owned and persist to PostgreSQL. This release does **not** record completed workouts, produce XP or provide medical advice. Full UI translation beyond the onboarding preference field is also not available yet.
 
-**Release instructions and checklist:** [docs/PHASE3.md](docs/PHASE3.md)
+**Previous refinement release:** [docs/PHASE4_REFINEMENTS.md](docs/PHASE4_REFINEMENTS.md)
+**Original Phase 4 baseline:** [docs/PHASE4.md](docs/PHASE4.md)
+**Phase 3 onboarding details:** [docs/PHASE3.md](docs/PHASE3.md)
 **Earlier phase authentication and OAuth details:** [docs/PHASE2.md](docs/PHASE2.md)
 
 ## Prerequisites
@@ -21,18 +25,19 @@ Local-first gamified personal development app for **Workout, Study and Learning*
 - Existing local `monarch_system` database, `monarch_app` user, ignored `backend/config.local.json`.
 - Visual Studio Code and Google Chrome.
 
-## Upgrade existing Phase 2 project (Windows PowerShell)
+## Upgrade existing Phase 3 or Phase 4 project (Windows PowerShell)
 
-Stop running backend, frontend and admin PowerShell terminals (`Ctrl+C`), back up both your database and project folder, and download the full integrated Phase 3 ZIP to Downloads.
+Stop running backend, frontend and admin PowerShell terminals (`Ctrl+C`), back up both your database and project folder, and download the full integrated Phase 4 ZIP to Downloads.
 
 ```powershell
 Set-Location 'E:\Projects\Monarch-System'
-Expand-Archive -LiteralPath "$env:USERPROFILE\Downloads\Monarch-System-Phase3-v0.3.0.zip" -DestinationPath 'E:\Projects\Monarch-System' -Force
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\upgrade_phase3.ps1
+Expand-Archive -LiteralPath "$env:USERPROFILE\Downloads\Monarch-System-Phase4-v0.4.1-Refined.zip" -DestinationPath 'E:\Projects\Monarch-System' -Force
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\backup_postgres.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\upgrade_phase4_refinements.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test.ps1
 ```
 
-`upgrade_phase3.ps1` checks existing credentials and applies additive migrations without reinstalling your packages. If this is a first-time installation, use `scripts/setup.ps1` instead (see Phase 2 docs).
+`backup_postgres.ps1` validates a readable pre-migration database dump; `upgrade_phase4_refinements.ps1` checks existing credentials and applies additive migrations without reinstalling your packages. If this is a first-time installation, use `scripts/setup.ps1` instead (see Phase 2 docs).
 
 **VS Code terminal 1 — Backend**
 
@@ -55,7 +60,7 @@ Set-Location 'E:\Projects\Monarch-System'
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\chrome.ps1
 ```
 
-App: `http://127.0.0.1:5173/` → **Login → Onboarding**.
+App: `http://127.0.0.1:5173/` → **Login → Workout** (complete Onboarding first).
 
 Automated tests use in-memory SQLite and don't mutate your development PostgreSQL data. Real PostgreSQL migrations and the Chrome manual checklist still must be verified on your PC. Do not expose the local admin publicly or upload `backend/config.local.json`.
 
@@ -99,7 +104,7 @@ See [docs/PHASE2.md](docs/PHASE2.md) for route list, security decisions, migrati
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md). Phase 3 onboarding is the next milestone.
+See [CHANGELOG.md](CHANGELOG.md). Phase 4 workout drafts are the current milestone; workout execution comes in Phase 5.
 
 ### One-command Chrome launcher
 

@@ -9,10 +9,10 @@ def health(request):
             cursor.execute('SELECT 1')
             cursor.fetchone()
     except DatabaseError:
-        return JsonResponse({'status': 'degraded', 'api': 'online', 'database': 'unavailable', 'version': '0.3.0'}, status=503)
-    response = JsonResponse({'status': 'ok', 'api': 'online', 'database': 'connected', 'version': '0.3.0'})
+        return JsonResponse({'status': 'degraded', 'api': 'online', 'database': 'unavailable', 'version': '0.4.2'}, status=503)
+    response = JsonResponse({'status': 'ok', 'api': 'online', 'database': 'connected', 'version': '0.4.2'})
     response['Cache-Control'] = 'no-store'
     return response
 @require_GET
 def system_info(request):
-    return JsonResponse({'name': 'Monarch System', 'version': '0.3.0', 'phase': 3, 'modules': ['workout', 'study', 'learning'], 'authentication_available': True, 'onboarding_available': True, 'public_access_ready': False, 'google_login_configured': bool(settings.GOOGLE_CLIENT_ID), 'google_client_id': settings.GOOGLE_CLIENT_ID})
+    return JsonResponse({'name': 'Monarch System', 'version': '0.4.2', 'phase': 4, 'modules': ['workout', 'study', 'learning'], 'authentication_available': True, 'onboarding_available': True, 'workout_engine_available': True, 'public_access_ready': False, 'google_login_configured': bool(settings.GOOGLE_CLIENT_ID), 'google_client_id': settings.GOOGLE_CLIENT_ID})
