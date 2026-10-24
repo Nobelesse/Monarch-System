@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useState} from 'react';
 import './workout.css';
-import ExerciseMotion3D from './ExerciseMotion3D';
+import HumanFormGuide from './HumanFormGuide';
 
 type Movement = 'squat' | 'hinge' | 'push' | 'pull' | 'core' | 'mobility';
 type Focus = 'balanced' | 'strength' | 'endurance' | 'mobility';
@@ -123,13 +123,13 @@ export default function Workout({userId,onOpenOnboarding}:{userId:number;onOpenO
   finally{setBusy(false);}
  }
  return <div className="wk-root">
-  <section className="wk-command" aria-label="Workout command center">
+  <section className="wk-command wk-cinematic-command" aria-label="Workout command center"><div className="wk-scene-world" aria-hidden="true"/><div className="wk-scene-haze" aria-hidden="true"/>
    <div className="wk-command-copy"><span className="wk-eyebrow">MONARCH SYSTEM / TRAINING MODULE</span>
-    <h2>Forge your <em>own strength.</em></h2>
+    <h2>Forge your<br/><em>own strength.</em></h2>
     <p>A deliberate training system built around your time, available equipment and selected approach. Real progress comes from consistent practice—not a generated rank.</p>
     <div className="wk-hero-actions"><button type="button" onClick={()=>setSection('plan')} className="wk-primary">{plan?'Open weekly draft ↗':'Create training draft ↗'}</button><button className="wk-outline" onClick={onOpenOnboarding}>Edit player profile</button></div>
    </div>
-   <div className="wk-emblem" aria-hidden="true"><div className="wk-emblem-rings"><span>✦</span></div><small>YOUR PACE · YOUR PATH</small></div>
+   <div className="wk-world-caption" aria-hidden="true">THE TRAINING SANCTUARY <span>YOUR PACE · YOUR PATH</span></div>
   </section>
   <section className="wk-stats" aria-label="Your saved workout draft statistics">
    <div><span>WEEKLY SESSIONS</span><strong>{plan?.days.length??'—'}</strong><small>Saved scheduled days</small></div>
@@ -163,11 +163,11 @@ export default function Workout({userId,onOpenOnboarding}:{userId:number;onOpenO
     {day&&<div className="wk-active-day"><div className="wk-day-intro"><div><span className="wk-eyebrow">{day.focus==='strength'?'STRENGTH SESSION':'RECOVERY / GENTLE MOVEMENT'}</span><h4>{day.day_name} <span>· {titleCase(day.theme)}</span></h4><p>{day.planned_minutes} suggested minutes from {day.available_minutes} available. Include a comfortable warm-up and cool-down.</p></div><span className="wk-big-index">{String(day.weekday+1).padStart(2,'0')}</span></div>
      <div className="wk-exercise-list">{day.items.map((item,index)=><article className="wk-exercise" key={item.id}>
       <div className="wk-exercise-icon" aria-hidden="true">{movementIcons[item.exercise.movement]}</div>
-      <div className="wk-exercise-main"><div className="wk-exercise-head"><div><small>MOVE {String(index+1).padStart(2,'0')} · {titleCase(item.exercise.movement)}</small><h5 className="wk-name-with-demo">{item.exercise.name}<button type="button" className="wk-motion-open" aria-expanded={motionId===item.id} onClick={()=>setMotionId(motionId===item.id?null:item.id)}>{motionId===item.id?"✕ Close 3D":"▶ 3D DEMO"}</button></h5></div><span className="wk-chip">{titleCase(item.exercise.equipment)}</span></div>
+      <div className="wk-exercise-main"><div className="wk-exercise-head"><div><small>MOVE {String(index+1).padStart(2,'0')} · {titleCase(item.exercise.movement)}</small><h5 className="wk-name-with-demo">{item.exercise.name}<button type="button" className="wk-motion-open" aria-expanded={motionId===item.id} onClick={()=>setMotionId(motionId===item.id?null:item.id)}>{motionId===item.id?"✕ Close human guide":"▶ HUMAN FORM GUIDE"}</button></h5></div><span className="wk-chip">{titleCase(item.exercise.equipment)}</span></div>
        <p>{item.exercise.instructions}</p><div className="wk-dose"><span><b>{item.sets}</b> sets</span><span><b>{item.reps}</b> reps / duration</span><span><b>{item.rest_seconds}s</b> rest</span></div>
        <div className="wk-item-actions"><button type="button" disabled={busy||plan.stale} onClick={()=>startEdit(item)}>✎ Adjust</button><button type="button" disabled={busy||plan.stale} onClick={()=>void showAlternatives(item)}>⇄ Swap</button>
         <button type="button" aria-label={'Move '+item.exercise.name+' up'} disabled={busy||plan.stale||index===0} onClick={()=>void move(item,'up')}>↑</button><button type="button" aria-label={'Move '+item.exercise.name+' down'} disabled={busy||plan.stale||index===day.items.length-1} onClick={()=>void move(item,'down')}>↓</button></div>
-       {motionId===item.id&&<ExerciseMotion3D name={item.exercise.name} movement={item.exercise.movement}/>}
+       {motionId===item.id&&<HumanFormGuide slug={item.exercise.slug} name={item.exercise.name} movement={item.exercise.movement} instructions={item.exercise.instructions}/>}
        {editId===item.id&&<div className="wk-editor"><strong>Adjust suggested prescription</strong><div><label>Sets<select value={editSets} onChange={e=>setEditSets(Number(e.target.value))}>{[1,2,3,4].filter(x=>day.focus!=='mobility'||x<=2).map(x=><option key={x} value={x}>{x}</option>)}</select></label><label>Repetitions / duration<select value={editReps} onChange={e=>setEditReps(e.target.value)}>{repOptions.map(x=><option key={x}>{x}</option>)}</select></label><label>Rest seconds<select value={editRest} onChange={e=>setEditRest(Number(e.target.value))}>{restOptions.map(x=><option key={x} value={x}>{x}s</option>)}</select></label></div><button type="button" className="wk-primary" disabled={busy} onClick={()=>void saveEdit(item)}>Save changes</button><button type="button" className="wk-outline" onClick={()=>setEditId(null)}>Cancel</button></div>}
        {openSwap===item.id&&<div className="wk-editor wk-alternatives"><strong>Permitted alternatives · same movement family</strong>{alternatives.length===0?<p>No matching alternatives available.</p>:<div className="wk-alt-list">{alternatives.map(a=><button key={a.slug} type="button" disabled={busy} onClick={()=>void replace(item,a.slug)}><strong>{a.name}</strong><small>{titleCase(a.equipment)} · {a.instructions}</small></button>)}</div>}<button className="wk-outline" type="button" onClick={()=>setOpenSwap(null)}>Close</button></div>}
       </div>
@@ -181,7 +181,7 @@ export default function Workout({userId,onOpenOnboarding}:{userId:number;onOpenO
     <label>Movement<select value={movementFilter} onChange={e=>setMovementFilter(e.target.value as 'all'|Movement)}><option value="all">All movements</option>{(['squat','hinge','push','pull','core','mobility'] as Movement[]).map(x=><option key={x} value={x}>{titleCase(x)}</option>)}</select></label>
     <label>Equipment<select value={equipmentFilter} onChange={e=>setEquipmentFilter(e.target.value)}><option value="all">All equipment</option>{equipmentOptions.map(x=><option value={x} key={x}>{titleCase(x)}</option>)}</select></label>
    </div>
-   <div className="wk-codex-grid">{matches.map(e=><article key={e.slug}><div className="wk-codex-icon">{movementIcons[e.movement]}</div><small>{titleCase(e.movement)} · {titleCase(e.level)}</small><h4>{e.name}</h4><p>{e.instructions}</p><button type="button" className="wk-outline" aria-expanded={codexMotion===e.slug} onClick={()=>setCodexMotion(codexMotion===e.slug?null:e.slug)}>{codexMotion===e.slug?'Hide movement preview':'◇ Open 3D motion guide'}</button>{codexMotion===e.slug&&<ExerciseMotion3D name={e.name} movement={e.movement}/>}<div><span>{titleCase(e.equipment)}</span>{e.caution_tags.map(t=><span key={t}>{t} caution</span>)}</div></article>)}</div>
+   <div className="wk-codex-grid">{matches.map(e=><article key={e.slug}><div className="wk-codex-icon">{movementIcons[e.movement]}</div><small>{titleCase(e.movement)} · {titleCase(e.level)}</small><h4>{e.name}</h4><p>{e.instructions}</p><button type="button" className="wk-outline" aria-expanded={codexMotion===e.slug} onClick={()=>setCodexMotion(codexMotion===e.slug?null:e.slug)}>{codexMotion===e.slug?'Hide human guide':'▶ View human guide'}</button>{codexMotion===e.slug&&<HumanFormGuide slug={e.slug} name={e.name} movement={e.movement} instructions={e.instructions}/>}<div><span>{titleCase(e.equipment)}</span>{e.caution_tags.map(t=><span key={t}>{t} caution</span>)}</div></article>)}</div>
    {matches.length===0&&<p className="wk-muted">No exercises match those filters. Try broadening the search.</p>}
   </section>}
  </div>;

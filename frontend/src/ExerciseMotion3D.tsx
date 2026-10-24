@@ -1,6 +1,7 @@
 /** Procedural 3D joint model for beginner ORIENTATION, not an exercise-specific motion capture. */
 import {useEffect, useRef, useState} from 'react';
 import './exercise-motion.css';
+import trainerSeated from './assets/trainer-seated.webp';
 
 type Movement = 'squat'|'hinge'|'push'|'pull'|'core'|'mobility';
 type V3 = [number,number,number];
@@ -98,19 +99,40 @@ export default function ExerciseMotion3D({name,movement}:{name:string;movement:M
    const joints=skeleton(movement,phase);
    const joints2=Object.fromEntries(Object.entries(joints).map(([key,p])=>[key,project(p)]));
    const drawLinks=links.map(([a,b])=>({a,b,depth:(joints2[a].z+joints2[b].z)/2})).sort((a,b)=>b.depth-a.depth);
+   // Volumetric, shaded orientation mannequin (not motion-capture). Painter's-order limbs.
+   const limb=(a:{x:number;y:number},b:{x:number;y:number},width:number,base:string,highlight:string)=>{
+    context.lineCap='round';context.lineJoin='round';
+    context.beginPath();context.moveTo(a.x+2,a.y+3);context.lineTo(b.x+2,b.y+3);context.strokeStyle='#040711';context.lineWidth=width+8;context.stroke();
+    const g=context.createLinearGradient(a.x-width/2,a.y,b.x+width/2,b.y);
+    g.addColorStop(0,'#29253f');g.addColorStop(.25,base);g.addColorStop(.65,highlight);g.addColorStop(1,'#221c32');
+    context.beginPath();context.moveTo(a.x,a.y);context.lineTo(b.x,b.y);context.strokeStyle=g;context.lineWidth=width;context.stroke();
+   };
+   // Dimensional torso is a filled trapezoid, rather than a stick.
+   const shL=joints2.shoulderL,shR=joints2.shoulderR,hipL=joints2.hipL,hipR=joints2.hipR;
+   context.beginPath();context.moveTo(shL.x,shL.y);context.lineTo(shR.x,shR.y);context.lineTo(hipR.x,hipR.y);context.lineTo(hipL.x,hipL.y);context.closePath();
+   const torsoGrad=context.createLinearGradient(shL.x,shL.y,shR.x,hipR.y);
+   torsoGrad.addColorStop(0,'#202237');torsoGrad.addColorStop(.33,'#47415e');torsoGrad.addColorStop(.6,'#75648d');torsoGrad.addColorStop(1,'#29243e');
+   context.fillStyle=torsoGrad;context.fill();context.lineWidth=2;context.strokeStyle='#a48abf';context.stroke();
    for(const link of drawLinks){
-    const a=joints2[link.a],b=joints2[link.b];const active=link.a.includes('shoulder')||link.a.includes('elbow')||link.a.includes('hip');
-    context.lineCap='round';context.lineJoin='round';context.beginPath();context.moveTo(a.x,a.y);context.lineTo(b.x,b.y);
-    context.strokeStyle='rgba(19,10,41,.98)';context.lineWidth=15;context.stroke();
-    context.strokeStyle=active?'#b29bff':'#8295c5';context.lineWidth=9;context.stroke();
-    context.strokeStyle=active?'rgba(239,223,255,.7)':'rgba(210,230,255,.52)';context.lineWidth=2;context.stroke();
+    const a=joints2[link.a],b=joints2[link.b];
+    // Torso boundaries are already drawn using anatomical mass.
+    if((link.a.includes('hip')&&link.b.includes('shoulder'))||(link.a==='shoulderL'&&link.b==='shoulderR')||(link.a==='hipL'&&link.b==='hipR'))continue;
+    const leg=/hip|knee|ankle/.test(link.a+link.b);const isArm=/elbow|wrist/.test(link.a+link.b);
+    if(!leg&&!isArm&&link.a!=='neck')continue;
+    limb(a,b,leg?21:isArm?16:12,leg?'#565e81':'#766287',leg?'#98a3cc':'#af91c4');
    }
-   const head=joints2.head;context.beginPath();context.arc(head.x,head.y,15,0,Math.PI*2);
-   context.fillStyle='#998de7';context.fill();context.strokeStyle='#e5ccff';context.lineWidth=2;context.stroke();
-   for(const [key,p] of Object.entries(joints2))if(key!=='head'&&key!=='neck'){
-    context.beginPath();context.arc(p.x,p.y,4.7,0,Math.PI*2);
-    context.fillStyle='#d4c3ff';context.fill();
+   const head=joints2.head;
+   const headGradient=context.createRadialGradient(head.x-4,head.y-5,3,head.x,head.y,20);
+   headGradient.addColorStop(0,'#c3a9cd');headGradient.addColorStop(.55,'#7b688e');headGradient.addColorStop(1,'#29283e');
+   context.beginPath();context.ellipse(head.x,head.y,15,19,0,0,Math.PI*2);context.fillStyle=headGradient;context.fill();context.strokeStyle='#b19fcf';context.lineWidth=1.4;context.stroke();
+   context.beginPath();context.ellipse(head.x,head.y-11,14,6,0,Math.PI,Math.PI*2);context.fillStyle='#1b1b2c';context.fill();
+   // Subtle anatomical areas, avoiding a wire-frame or toy-doll appearance.
+   context.globalAlpha=.21;
+   context.strokeStyle='#e0cbff';context.lineWidth=1.6;
+   for(const f of [-1,1]){
+    context.beginPath();context.moveTo(head.x+f*4,shL.y+23);context.lineTo(head.x+f*13,hipL.y-12);context.stroke();
    }
+   context.globalAlpha=1;
    context.fillStyle='rgba(201,188,255,.8)';context.font='10px system-ui';
    context.fillText('3D MOTION / ORIENTATION',14,19);
    context.textAlign='right';context.fillText(`${Math.round((phase*100))}%`,width-12,19);context.textAlign='left';
@@ -118,15 +140,19 @@ export default function ExerciseMotion3D({name,movement}:{name:string;movement:M
   };
   raf=requestAnimationFrame(render);return()=>cancelAnimationFrame(raf);
  },[movement,view,playing,speed,motion]);
+ const isSeatedReference=/seated knee raise/i.test(name);
  return <section className="motion-wrap" aria-label={`3D motion preview for ${name}`}>
   <div className="motion-header"><span className="motion-label">◇ INTERACTIVE MOTION GUIDE</span><strong>{notes.name}</strong></div>
-  <div className="motion-view"><canvas ref={canvas} role="img" aria-label={`Rotatable 3D skeletal demonstration of the ${notes.name.toLowerCase()} for ${name}`} /></div>
+  <div className={isSeatedReference?'motion-reference':'motion-solo'}>
+   {isSeatedReference&&<figure className="motion-photo"><img src={trainerSeated} alt="Visual reference showing a seated knee raise on a bench"/><figcaption>Photographic pose reference · Seated knee raise</figcaption></figure>}
+   <div className="motion-view"><canvas ref={canvas} role="img" aria-label={`Rotatable three-dimensional anatomical orientation for the ${notes.name.toLowerCase()} movement pattern`} /></div>
+  </div>
   <div className="motion-controls"><button type="button" onClick={()=>{setMotion(true);setPlaying(v=>!v);}}>{playing&&motion?'Ⅱ Pause':'▶ Play'}</button>
    <label>Rotate <input type="range" aria-label="Rotate 3D figure" min="-85" max="85" value={view} onChange={e=>setView(Number(e.target.value))}/></label>
    <label>Speed <select aria-label="Motion speed" value={speed} onChange={e=>setSpeed(Number(e.target.value))}><option value="0.5">0.5×</option><option value="1">1×</option><option value="1.5">1.5×</option></select></label>
   </div>
   <p className="motion-cue"><b>Movement cue:</b> {notes.cue}</p>
   <p className="motion-caution"><b>Beginner tip:</b> {notes.common}</p>
-  <p className="motion-disclaimer">Illustrative 3D movement-family preview, not exact technique for every named exercise. Follow the exercise-specific written instructions and consult a qualified coach when unsure.</p>
+  <p className="motion-disclaimer">Anatomically shaded procedural movement-family preview, not a 3D scan or exact technique for every named exercise. Still image shown only where the named exercise matches. Follow the exercise-specific written instructions and consult a qualified coach when unsure.</p>
  </section>;
 }

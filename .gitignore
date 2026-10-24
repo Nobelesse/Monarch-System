@@ -16,3 +16,7 @@ backups/
 
 # Editor-local environment preferences
 .vscode/
+
+# Third-party human motion media is local-only by default; review rights before sharing
+frontend/public/human-demos/media/*
+!frontend/public/human-demos/media/.gitkeep

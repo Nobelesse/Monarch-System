@@ -1,10 +1,28 @@
-# Monarch System — Phase 4 Dark Abyss Fixes (v0.4.2)
+# Monarch System — Human Form Studio (v0.4.4)
 
 Local-first gamified personal development app for **Workout, Study and Learning**, continuing the original Phase 1/2 project. Python Django + PostgreSQL backend and React/TypeScript/Vite frontend. No mandatory paid APIs.
 
 **Owner:** Nobelesse | **Windows folder:** `E:\Projects\Monarch-System` | **GitHub:** https://github.com/Nobelesse/Monarch-System
 
-**v0.4.2 fixes:** Fresh sign-in on every full browser load, login routing by persisted onboarding completion, a completed-profile summary/edit flow, 3D movement-family exercise previews (not exact biomechanical demonstrations), and new neon dark-abyss Overview illustration. No database schema changes. See [v0.4.2 details](docs/PHASE4_2.md).
+**Preserved v0.4.2 fixes:** Fresh sign-in on every full browser load, login routing by persisted onboarding completion, a completed-profile summary/edit flow, 3D movement-family exercise previews (not exact biomechanical demonstrations), and new neon dark-abyss Overview illustration. No database schema changes. See [v0.4.2 details](docs/PHASE4_2.md).
+
+## v0.4.4 — Human-first Exercise Form Studio
+
+**The mannequin has been removed.** The workout guide now only plays exercise-specific human MP4/WEBM recordings or locally supplied rigged human GLB animations, and shows a clear **no exact demo installed** state instead of simulating potentially incorrect motions. Seated knee raise retains a labeled, static human pose reference. Users can preview local videos in their browser or find human exercise tutorials by exact name. See [docs/HUMAN_FORM_DEMOS.md](docs/HUMAN_FORM_DEMOS.md) for asset installation, clip review, licensing and limitations. **Human movement videos and 3D GLBs are not included with the release; adding a verified asset is necessary for a moving human demonstration.** No backend or database changes and no new npm dependencies.
+
+## v0.4.3 — Whole-app cinematic UI
+
+All actual React pages share the **user-reference-inspired Dark Abyss cinematic interface**. This is an integrated frontend implementation, not a flattened concept screenshot. It includes a full-width animated hero, real live Overview state, atmospheric sidebar/header, Account, Onboarding, Paths, Workout, Roadmap and System Status styling. The exercise module has a shaded procedural motion guide and a contextual still-image pose reference for Seated knee raise. See [docs/PHASE4_3.md](docs/PHASE4_3.md) for exact limitations and verification.
+
+For existing installations, back up your local project/database, extract `Monarch-System-v0.4.3-Cinematic-UI.zip` to `E:\Projects\Monarch-System` with `Expand-Archive -Force`, then run:
+
+```powershell
+cd "E:\Projects\Monarch-System"
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\upgrade_cinematic.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test.ps1
+```
+
+**No new database migration, npm dependency, or external service.** Previous authentication, onboarding, workout-plan, edit/swap, exercise library and admin implementations are retained. No invented streaks or workout counts. The moving atmosphere is CSS animation using reference-derived artwork, **not rendered 4K footage**; the exercise rig is an illustrative movement-family model, **not a validated 3D demo for each exercise**.
 
 ## Phase 4 functionality
 

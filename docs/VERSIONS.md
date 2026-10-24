@@ -41,3 +41,5 @@ Integrated onboarding, model migration 0003, server-side validation, private opt
 28 manually curated exercises, core.0004 migration, account-owned plan generation and substitutions, conservative rest-oriented scheduling, Workout UI and 20 additional test cases. Dependency versions retained from v0.3.0. Local Windows validation required. See docs/PHASE4.md.
 
 - **v0.4.1** — Phase 4 refinement: curated catalog expansion, selectable focus/pace, smarter splits, editable account-owned workout drafts, refreshed interface. Local Django/React/PostgreSQL validation pending.
+
+- `v0.4.3`: whole-app cinematic Dark Abyss React redesign, asset-backed hero, procedural anatomical motion previews, contextually matched pose reference; no API or migration changes.

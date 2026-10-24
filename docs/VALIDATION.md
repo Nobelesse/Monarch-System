@@ -27,3 +27,6 @@ Static Python AST parsing and TypeScript TSX transpilation were executed during 
 
 ## Phase 4 (v0.4.0)
 66 test functions defined in core/test suite (46 from earlier phases + 20 workout tests). The Phase 4 authoring environment verified Python syntax and TypeScript TSX parsing, but Django and Vite production testing require the user's local dependency environment. See docs/PHASE4.md.
+
+## v0.4.3 visual overhaul
+Python backend `compileall`: checked in packaging environment. TypeScript/TSX syntax transpilation: checked using local TypeScript installation. Image references and ZIP integrity: checked. Full Django tests, real-browser interaction and pinned-dependency Vite build require the user's existing Windows installation; do not assume they passed.

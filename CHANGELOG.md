@@ -1,3 +1,9 @@
+## 0.4.4 — Human Form Studio
+- Removed inaccurate procedural mannequin/doll animation from the Workout plan and exercise library.
+- Added real-human local video player and optional exact-exercise animated GLB integration, exact-slug manifest, local video preview, external tutorial search and clearer beginner form guidance.
+- Retained the existing 0.4.3 cinematic UI, authentication and PostgreSQL functionality. No migrations.
+- Human motion files are not bundled; users must supply licensed, technique-reviewed, exercise-matched footage.
+
 ## v0.4.2 — Dark Abyss and Exercise Guidance
 
 - Fresh-start sign-in: clear prior Django session at every app load and expire browser cookies on browser close.
@@ -52,3 +58,10 @@
 - Account-safe same-movement substitutions, CSRF protection, stale detection and idempotent reuse.
 - React Workout interface, Windows backup/upgrade scripts and 20 new automated test cases.
 - Phase 5 remains responsible for actual workout execution/history; Phase 6 for XP/ranks.
+
+## v0.4.3 — Cinematic Experience (app-wide UI)
+- Replace compact Overview dome with immersive full-width art and animated depth layers; real live content overlays the scene.
+- Apply coherent Dark Abyss treatment to all navigation destinations, including Account, Onboarding, Paths, Workout, Roadmap and System Status.
+- Improve general movement visualizer with shaded anatomical volume and contextual Seated knee raise pose image.
+- Preserve all existing Phase 1–4 features, API contracts, database schemas, tests and accessible reduced-motion controls.
+- No fake workout counts, streaks, XP or movement-accuracy claims.
