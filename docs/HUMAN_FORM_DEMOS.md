@@ -13,7 +13,7 @@ The new human-first viewer opens beside an exercise in the **Workout schedule** 
 - Exercise-specific text from the existing Django catalog, with general movement-family caution cues.
 - A static human pose reference for **Seated knee raise only**, correctly labeled as a still—not animated instruction.
 
-**This ZIP ships with no newly licensed human video or motion-captured 3D GLB clips.** This is the infrastructure for high-quality human demonstrations, not a claim that 63 verified demonstrations now exist. Until you add an exact video/rig, the interface clearly says a demonstration is not installed. We do not show inaccurate 3D motions to fill a gap.
+**v0.4.5 ships no copied video files, but does provide six in-app YouTube embeds of real instructors for exact exercises (online access required).** This is the infrastructure for high-quality human demonstrations, not a claim that 63 verified demonstrations now exist. For an exercise without a curated web embed or a locally supplied video/rig, the interface clearly says a demonstration is not installed. We do not show inaccurate 3D motions to fill a gap.
 
 ## Add a professionally recorded / appropriately licensed exercise demo
 

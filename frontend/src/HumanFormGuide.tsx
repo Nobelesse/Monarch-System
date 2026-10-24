@@ -6,6 +6,7 @@
  */
 import {useEffect, useRef, useState} from 'react';
 import seatedReference from './assets/trainer-seated.webp';
+import {getInstructorDemo} from './curated-human-videos';
 import './human-form-guide.css';
 
 type Movement = 'squat'|'hinge'|'push'|'pull'|'core'|'mobility';
@@ -63,10 +64,12 @@ function useHumanDemo(slug:string){
 }
 export default function HumanFormGuide({slug,name,movement,instructions}:{slug:string;name:string;movement:Movement;instructions:string}){
  const {entry,loading}=useHumanDemo(slug);
+ const instructor=getInstructorDemo(slug);
  const [tempUrl,setTempUrl]=useState<string|null>(null);
  const [tempName,setTempName]=useState('');
  const [playerError,setPlayerError]=useState(false);
  const [ready3D,setReady3D]=useState(false);
+ const [showInstructor,setShowInstructor]=useState(true);
  const [playing,setPlaying]=useState(true);
  const [speed,setSpeed]=useState('1');
  const videoRef=useRef<HTMLVideoElement>(null);
@@ -74,6 +77,9 @@ export default function HumanFormGuide({slug,name,movement,instructions}:{slug:s
  const isSeated=/^seated knee raise$/i.test(name);
  const movie=Boolean(tempUrl||entry?.kind==='video');
  const isGLB=Boolean(!tempUrl&&entry?.kind==='3d');
+ const showInstructorPlayer=Boolean(!tempUrl&&!entry&&instructor&&showInstructor);
+ const youtubeUrl=instructor ? 'https://www.youtube.com/watch?v='+instructor.videoId : '';
+ const embedUrl=instructor ? 'https://www.youtube-nocookie.com/embed/'+instructor.videoId+'?rel=0&playsinline=1'+(instructor.start?'&start='+instructor.start:'') : '';
  const videoSrc=tempUrl|| (entry?.kind==='video'?'/human-demos/media/'+entry.filename:null);
  const hints=motionHints[movement];
  useEffect(()=>{
@@ -101,22 +107,29 @@ export default function HumanFormGuide({slug,name,movement,instructions}:{slug:s
       el.setAttribute('aria-label',`Interactive human 3D form model for ${name}`);
       el.style.width='100%';el.style.height='330px';el.addEventListener('error',()=>setPlayerError(true));node.append(el);
      }}/>}<span>DRAG TO ROTATE · HUMAN 3D MOTION</span></div>:null}
-   {(!movie&&!isGLB||playerError||isGLB&&!ready3D)&&<div className="human-guide-placeholder">
+   {showInstructorPlayer&&<div className="human-guide-instructor">
+    <div className="human-guide-instructor-header"><span className="human-guide-source-pill">● HUMAN INSTRUCTOR · EXERCISE MATCH</span><strong>{instructor!.title}</strong></div>
+    <div className="human-guide-embed"><iframe key={slug} src={embedUrl} title={`${instructor!.title} — human exercise demonstration`} allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowFullScreen loading="lazy" referrerPolicy="strict-origin-when-cross-origin"/></div>
+    <div className="human-guide-instructor-footer"><div><strong>Presented by {instructor!.publisher}</strong><p>{instructor!.notes}</p></div><a href={youtubeUrl} target="_blank" rel="noopener noreferrer">Watch on YouTube ↗</a></div>
+    <p className="human-guide-online-note">Online video: requires an internet connection. If YouTube blocks embedded playback, open the original using the button above. Real human footage, not a 3D model.</p>
+   </div>}
+   {(!showInstructorPlayer&&(!movie&&!isGLB||playerError||isGLB&&!ready3D))&&<div className="human-guide-placeholder">
     {isSeated?<img src={seatedReference} alt="Adult trainer seated on a bench with knee raised — static pose reference"/>:<div className="human-guide-placeholder-art" aria-hidden="true"><span>◇</span><strong>HUMAN MOTION LIBRARY</strong></div>}
-    <div className="human-guide-placeholder-copy"><span>{isSeated?'HUMAN POSITION REFERENCE':'EXACT DEMONSTRATION NOT INSTALLED'}</span><h4>{name}</h4><p>{isSeated?'This is a real-human styled static pose illustration, not an animated technique guide.':'The old mannequin is removed. No substitute generic animation is shown for this exercise because beginners need the correct movement.'}</p>{playerError&&<small role="alert">Could not load this media. Check the file format and asset path.</small>}</div>
+    <div className="human-guide-placeholder-copy"><span>{isSeated?'HUMAN POSITION REFERENCE':'NO EXACT HUMAN TUTORIAL LINKED YET'}</span><h4>{name}</h4><p>{isSeated?'This is a real-human styled static pose illustration, not an animated technique guide.':'No matching human tutorial is linked yet for this exercise. Use the exact-name search below, or load your own matching clip.'}</p>{playerError&&<small role="alert">Could not load this media. Check the file format and asset path.</small>}</div>
    </div>}
   </div>
   <div className="human-guide-tools">
    {movie&&!playerError&&<label>Playback speed <select value={speed} onChange={e=>{setSpeed(e.target.value);if(videoRef.current)videoRef.current.playbackRate=Number(e.target.value);}}><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1">1×</option><option value="1.25">1.25×</option></select></label>}
-   <button type="button" className="human-guide-upload" onClick={()=>uploadRef.current?.click()}>▣ Preview a human video</button>
+   <button type="button" className="human-guide-upload" onClick={()=>uploadRef.current?.click()}>▣ Use my own clip (optional)</button>
    <input ref={uploadRef} type="file" accept="video/mp4,video/webm" hidden onChange={e=>{chooseFile(e.target.files);e.target.value='';}} aria-label="Choose a human exercise demonstration video"/>
    {tempUrl&&<button type="button" onClick={()=>{setTempUrl(null);setTempName('');}}>Clear local preview</button>}
+   {instructor&&!tempUrl&&!entry&&<button type="button" onClick={()=>setShowInstructor(v=>!v)}>{showInstructor?'Hide instructor video':'Show instructor video'}</button>}
    <a href={trainerSearch} target="_blank" rel="noopener noreferrer">Find human demonstration ↗</a>
   </div>
   {tempName&&<div className="human-guide-small">Viewing local clip: {tempName}. This stays in your browser and is not uploaded or permanently saved.</div>}
   {entry?.credit&&<div className="human-guide-small">Media credit: {entry.credit}</div>}
   {loading&&<div className="human-guide-small">Checking locally installed exercise demonstrations…</div>}
   <div className="human-guide-instructions"><div><small>EXERCISE-SPECIFIC INSTRUCTIONS</small><p>{instructions}</p></div><div><small>MOVEMENT CUE</small><p>{hints.cue}</p></div><div><small>BEFORE YOU COPY A DEMO</small><p>{hints.avoid} Check the exercise name and equipment match the video.</p></div></div>
-  <p className="human-guide-disclaimer">For beginners: don't imitate a generic animation. Use only a demo of the exact exercise from a qualified instructor. Stop if you experience pain or dizziness. Human videos or motion-capture GLBs can be added locally; unreviewed footage is not presented as verified coaching.</p>
+  <p className="human-guide-disclaimer">For beginners: an instructor video is educational footage, not personalized technique assessment. Don't imitate a generic animation. Use only a demo of the exact exercise from a qualified instructor. Stop if you experience pain or dizziness. Human videos or motion-capture GLBs can be added locally; unreviewed footage is not presented as verified coaching.</p>
  </section>;
 }

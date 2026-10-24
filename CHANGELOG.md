@@ -1,3 +1,11 @@
+## v0.4.5 — Exact-Exercise Human Instructor Videos
+- Fix empty default Human Form Studio panel by embedding a confirmed, exact-exercise Counter Push-Ups instructor video from KUTV.
+- Add five more exercise-slug-matched instructional video embeds with named publisher credits (six total).
+- Provide native YouTube playback controls and direct Watch on YouTube fallback; no uploads or third-party API keys required.
+- Preserve all current user-supplied MP4/WebM and motion-capture GLB options with local media taking precedence.
+- Include offline catalog/link consistency verifier in the existing Windows test script; Django suite remains 81 tests.
+- No migration, no backend change. External media needs network connectivity and may restrict embedding.
+
 ## 0.4.4 — Human Form Studio
 - Removed inaccurate procedural mannequin/doll animation from the Workout plan and exercise library.
 - Added real-human local video player and optional exact-exercise animated GLB integration, exact-slug manifest, local video preview, external tutorial search and clearer beginner form guidance.

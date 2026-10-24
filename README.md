@@ -1,10 +1,16 @@
-# Monarch System — Human Form Studio (v0.4.4)
+# Monarch System — Real Human Demos (v0.4.5)
 
 Local-first gamified personal development app for **Workout, Study and Learning**, continuing the original Phase 1/2 project. Python Django + PostgreSQL backend and React/TypeScript/Vite frontend. No mandatory paid APIs.
 
 **Owner:** Nobelesse | **Windows folder:** `E:\Projects\Monarch-System` | **GitHub:** https://github.com/Nobelesse/Monarch-System
 
 **Preserved v0.4.2 fixes:** Fresh sign-in on every full browser load, login routing by persisted onboarding completion, a completed-profile summary/edit flow, 3D movement-family exercise previews (not exact biomechanical demonstrations), and new neon dark-abyss Overview illustration. No database schema changes. See [v0.4.2 details](docs/PHASE4_2.md).
+
+## v0.4.5 — Built-in real instructor demos (fix for empty player)
+
+**Countertop push-up now shows an actual matching human instructor video in the app without a file upload.** Six exercise IDs have carefully selected third-party YouTube demonstrations (countertop push-up, wall push-up, floor push-up, chair sit-to-stand, glute bridge, bird dog). These are **live embeds**, not copied or downloaded assets, and require an internet connection. Every guide has a direct Watch on YouTube link if embedding is blocked. Exercises without an exact sourced demonstration keep their written instructions and clearly labeled no-clip fallback — we will not supply fake exercises. Locally installed licensed video or animated GLB files take priority over web embeds. See [docs/PHASE4_5.md](docs/PHASE4_5.md).
+
+**This is real human video, not interactive motion-capture 3D**, because accurate human models and the corresponding movements cannot be conjured without actual licensed/created motion assets. Free videos are embedded with publisher attribution and remain on their original hosting service. No paid APIs, backend changes, or migrations.
 
 ## v0.4.4 — Human-first Exercise Form Studio
 
@@ -43,44 +49,56 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test.ps1
 - Existing local `monarch_system` database, `monarch_app` user, ignored `backend/config.local.json`.
 - Visual Studio Code and Google Chrome.
 
-## Upgrade existing Phase 3 or Phase 4 project (Windows PowerShell)
+## Upgrade your existing v0.4.4 project to v0.4.5 (Windows PowerShell)
 
-Stop running backend, frontend and admin PowerShell terminals (`Ctrl+C`), back up both your database and project folder, and download the full integrated Phase 4 ZIP to Downloads.
+Stop running backend, frontend and admin servers with Ctrl+C. You do not need to recreate your virtual environment or database.
+
+First **back up the working source folder and verify a PostgreSQL archive**:
 
 ```powershell
-Set-Location 'E:\Projects\Monarch-System'
-Expand-Archive -LiteralPath "$env:USERPROFILE\Downloads\Monarch-System-Phase4-v0.4.1-Refined.zip" -DestinationPath 'E:\Projects\Monarch-System' -Force
+cd "E:\Projects"
+$backup = "E:\Projects\Monarch-System-Pre-v0.4.5-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+Copy-Item -LiteralPath "E:\Projects\Monarch-System" -Destination $backup -Recurse
+cd "E:\Projects\Monarch-System"
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\backup_postgres.ps1
-powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\upgrade_phase4_refinements.ps1
+```
+
+Continue only after you see a verified readable backup. Download **Monarch-System-v0.4.5-Complete.zip** into Downloads and then run:
+
+```powershell
+cd "E:\Projects\Monarch-System"
+$zip = Get-ChildItem "$env:USERPROFILE\Downloads" -Filter "Monarch-System-v0.4.5-Complete*.zip" -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if (-not $zip) { throw 'Full v0.4.5 ZIP not in Downloads. Check Chrome Downloads (Ctrl+J) and copy it there.' }
+Expand-Archive -LiteralPath $zip.FullName -DestinationPath "E:\Projects\Monarch-System" -Force
+Get-Content .\VERSION
+.\.venv\Scripts\python.exe backend/manage.py migrate --noinput
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\test.ps1
 ```
 
-`backup_postgres.ps1` validates a readable pre-migration database dump; `upgrade_phase4_refinements.ps1` checks existing credentials and applies additive migrations without reinstalling your packages. If this is a first-time installation, use `scripts/setup.ps1` instead (see Phase 2 docs).
+No new database migrations or npm dependencies are required for the v0.4.5 update if v0.4.4 was working. The test script first audits the 6 exact-exercise curated video links in source, then runs Django system checks, 81 backend tests and the TypeScript/Vite production build. The index audit **does not establish current online YouTube availability**; test Countertop push-up in Chrome. Tests use an in-memory SQLite database and do not reset your PostgreSQL development data.
 
 **VS Code terminal 1 — Backend**
 
 ```powershell
-Set-Location 'E:\Projects\Monarch-System'
+cd "E:\Projects\Monarch-System"
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\backend.ps1
 ```
 
 **VS Code terminal 2 — Frontend**
 
 ```powershell
-Set-Location 'E:\Projects\Monarch-System'
+cd "E:\Projects\Monarch-System"
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\frontend.ps1
 ```
 
 **VS Code terminal 3 — Chrome**
 
 ```powershell
-Set-Location 'E:\Projects\Monarch-System'
+cd "E:\Projects\Monarch-System"
 powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\chrome.ps1
 ```
 
-App: `http://127.0.0.1:5173/` → **Login → Workout** (complete Onboarding first).
-
-Automated tests use in-memory SQLite and don't mutate your development PostgreSQL data. Real PostgreSQL migrations and the Chrome manual checklist still must be verified on your PC. Do not expose the local admin publicly or upload `backend/config.local.json`.
+Open `http://127.0.0.1:5173/` → Sign in → Workout → **Countertop push-up** → Human Form Guide. The internet and embedding permission from the publisher are required; a Watch on YouTube fallback is provided. This is human instructor video, **not photorealistic rotatable 3D motion**, and just six of 63 exercises have curated embeds.
 
 ## Optional local admin (third terminal)
 
