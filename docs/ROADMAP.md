@@ -29,3 +29,6 @@ Security updates are reviewed and tested rather than permanently freezing vulner
 - **Phase 4:** v0.4.1 refinement adds plan focus/pace, an expanded exercise library, bounded prescription edits, reordering and a redesigned Workout screen; local acceptance pending. See docs/PHASE4_REFINEMENTS.md.
 
 **Phase 4 v0.4.2 polish:** fresh-start authentication, completed onboarding handling, exercise movement previews, dark-abyss game art.
+
+
+- v0.4.7 adds contextual offline motion guidance improvements without schema changes.

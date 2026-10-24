@@ -3,8 +3,10 @@ Set-Location (Split-Path $PSScriptRoot -Parent)
 $previous = $env:MONARCH_TEST_MODE
 try {
     $env:MONARCH_TEST_MODE = '1'
-    & .\.venv\Scripts\python.exe scripts/verify_curated_videos.py
-    if ($LASTEXITCODE -ne 0) { throw 'Exercise instructor index verification failed.' }
+    & .\.venv\Scripts\python.exe scripts/verify_offline_demos.py
+    if ($LASTEXITCODE -ne 0) { throw 'Offline exercise animation coverage validation failed.' }
+    node scripts/verify_offline_renderer.cjs
+    if ($LASTEXITCODE -ne 0) { throw 'Offline 3D human renderer smoke test failed.' }
     & .\.venv\Scripts\python.exe backend/manage.py check
     if ($LASTEXITCODE -ne 0) { throw 'Django public system check failed.' }
     & .\.venv\Scripts\python.exe backend/manage.py check --settings=config.admin_settings

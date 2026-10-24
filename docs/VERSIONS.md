@@ -43,3 +43,6 @@ Integrated onboarding, model migration 0003, server-side validation, private opt
 - **v0.4.1** — Phase 4 refinement: curated catalog expansion, selectable focus/pace, smarter splits, editable account-owned workout drafts, refreshed interface. Local Django/React/PostgreSQL validation pending.
 
 - `v0.4.3`: whole-app cinematic Dark Abyss React redesign, asset-backed hero, procedural anatomical motion previews, contextually matched pose reference; no API or migration changes.
+
+
+- v0.4.7 adds contextual offline motion guidance improvements without schema changes.

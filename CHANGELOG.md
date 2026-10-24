@@ -1,3 +1,15 @@
+## v0.4.7 — Contextual Offline Motion Upgrade (24 October 2026)
+- Improve the offline Human Motion Lab so beginner demos are easier to read, with clearer human proportions, contextual props and environment cues for wall, counter, bench, step, machine and resistance work.
+- Add exercise-aware default camera angles plus start/end ghost poses and motion arrows so the movement path is easier to understand.
+- Restore subtle animation for previously hard-to-read or nearly static presets such as towel holds, bracing and calf stretch variants.
+- Preserve offline playback, exact 63-exercise slug mapping, and existing set / reps / rest timers. No new migration.
+
+## v0.4.6 — Offline Workout Prototype (24 October 2026)
+- Added offline 3D-position procedural human illustration mapped explicitly to all 63 workout exercise slugs using 39 motion templates. No internet or user files required for playback; **not** photorealistic or exercise-verified 4K motion capture.
+- Added set-by-set local timers, user-confirmed repetitions, per-set recovery based on existing plan and adjustable between-exercise rest. Never auto-records completion or awards XP.
+- Replaced online instructor embeds in the Workout UI and added automated offline coverage and renderer smoke verification. Preserved 81 existing backend tests and current database schema.
+- Realistic, biomechanically verified offline 3D exercise assets for all 63 exercises remain an outstanding requirement.
+
 ## v0.4.5 — Exact-Exercise Human Instructor Videos
 - Fix empty default Human Form Studio panel by embedding a confirmed, exact-exercise Counter Push-Ups instructor video from KUTV.
 - Add five more exercise-slug-matched instructional video embeds with named publisher credits (six total).

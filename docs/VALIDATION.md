@@ -30,3 +30,6 @@ Static Python AST parsing and TypeScript TSX transpilation were executed during 
 
 ## v0.4.3 visual overhaul
 Python backend `compileall`: checked in packaging environment. TypeScript/TSX syntax transpilation: checked using local TypeScript installation. Image references and ZIP integrity: checked. Full Django tests, real-browser interaction and pinned-dependency Vite build require the user's existing Windows installation; do not assume they passed.
+
+
+- v0.4.7 adds contextual offline motion guidance improvements without schema changes.
